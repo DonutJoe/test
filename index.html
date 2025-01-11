@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Move Ball with Tilt</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #282c34;
+    }
+    canvas {
+      background: #ffffff;
+      border: 2px solid #000;
+    }
+    .warning {
+      color: white;
+      font-size: 1.2rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="300" height="300"></canvas>
+  <div class="warning" id="warning" style="display: none;">
+    Please enable motion and orientation access in your browser settings.
+  </div>
+  
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Ball properties
+    const ball = {
+      x: canvas.width / 2,
+      y: canvas.height / 2,
+      radius: 15,
+      color: 'red',
+      speed: 1.5,
+    };
+
+    // Draw the ball
+    function drawBall() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+      ctx.fillStyle = ball.color;
+      ctx.fill();
+      ctx.closePath();
+    }
+
+    // Update the ball's position based on tilt
+    function updateBallPosition(tiltX, tiltY) {
+      ball.x += tiltX * ball.speed;
+      ball.y += tiltY * ball.speed;
+
+      // Prevent the ball from going out of bounds
+      if (ball.x - ball.radius < 0) ball.x = ball.radius;
+      if (ball.x + ball.radius > canvas.width) ball.x = canvas.width - ball.radius;
+      if (ball.y - ball.radius < 0) ball.y = ball.radius;
+      if (ball.y + ball.radius > canvas.height) ball.y = canvas.height - ball.radius;
+
+      drawBall();
+    }
+
+    // Listen for device orientation
+    if (window.DeviceOrientationEvent) {
+      window.addEventListener('deviceorientation', (event) => {
+        const tiltX = event.gamma / 45; // Gamma is the left-to-right tilt in degrees
+        const tiltY = event.beta / 45;  // Beta is the front-to-back tilt in degrees
+        updateBallPosition(tiltX, tiltY);
+      });
+    } else {
+      document.getElementById('warning').style.display = 'block';
+    }
+
+    // Initial draw
+    drawBall();
+  </script>
+</body>
+</html>
